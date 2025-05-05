@@ -64,3 +64,5 @@ void GetAnalogInputRegisters();
 void AdcInit();
 void SendAnalogOutputToRegisters(uint16_t val);
 void DacInit();
+void eepromPageWrite(uint16_t addr, byte *data, uint8_t length);
+void eepromPageRead(uint16_t addr, byte *buffer, uint8_t length);

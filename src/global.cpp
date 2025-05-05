@@ -235,3 +235,39 @@ void SendAnalogOutputToRegisters(uint16_t val)
         dac1.setChannelValue(MCP4728_CHANNEL_D, 1024, MCP4728_VREF_INTERNAL, MCP4728_GAIN_1X);
     }
 }
+
+
+#define EEPROM_I2C_ADDRESS 0x50 // Base address for AT24LC16 (A0, A1, A2 = 0)
+
+void eepromPageWrite(uint16_t addr, byte *data, uint8_t length)
+{
+  if (length > 16)
+    length = 16; // AT24LC16 page size is 16 bytes
+
+  Wire.beginTransmission(EEPROM_I2C_ADDRESS | ((addr >> 8) & 0x07));
+  Wire.write((byte)(addr & 0xFF)); // lower 8 bits
+  for (uint8_t i = 0; i < length; i++)
+  {
+    Wire.write(data[i]);
+  }
+  Wire.endTransmission();
+
+  delay(10); // wait EEPROM internal write cycle (typical 5ms-10ms)
+  Serial.println("EEPROM Write Done!");
+}
+void eepromPageRead(uint16_t addr, byte *buffer, uint8_t length)
+{
+  if (length > 16)
+    length = 16; // Read maximum 16 bytes at once
+
+  Wire.beginTransmission(EEPROM_I2C_ADDRESS | ((addr >> 8) & 0x07));
+  Wire.write((byte)(addr & 0xFF)); // lower 8 bits
+  Wire.endTransmission();
+
+  Wire.requestFrom((EEPROM_I2C_ADDRESS | ((addr >> 8) & 0x07)), length);
+  uint8_t i = 0;
+  while (Wire.available() && i < length)
+  {
+    buffer[i++] = Wire.read();
+  }
+}
