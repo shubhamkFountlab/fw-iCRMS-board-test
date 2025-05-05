@@ -8,18 +8,18 @@ void setup()
 {
 
   Serial.begin(115200);
-  FastLED.addLeds<WS2812B, RGB_LED_PIN, GRB>(leds, NUM_LEDS);
+  Wire.begin(SDA1_PIN, SCL1_PIN);  // I2C 1
   InitRtc();
   EthernetBegin();
-  Wire.begin(SDA1_PIN, SCL1_PIN);  // I2C 1
-  Wire1.begin(SDA2_PIN, SCL2_PIN); // I2C 2
   PCAL6532DigitalIOPinModesInit();
   ESP32DigitalIPPinModesInit();
+   Wire1.begin(SDA2_PIN, SCL2_PIN); // I2C 2
   AdcInit();
-  DacInit();
+  //DacInit();
   pinMode(HEARTBEAT_LED, OUTPUT);
-  digitalWrite(HEARTBEAT_LED, LOW); // Set the heartbeat LED to LOW initially
+  //digitalWrite(HEARTBEAT_LED, LOW); // Set the heartbeat LED to LOW initially
   modbusInit();                     // Initialize Modbus
+  FastLED.addLeds<WS2812B, RGB_LED_PIN, GRB>(leds, NUM_LEDS);
 }
 
 void loop()
@@ -29,7 +29,7 @@ void loop()
   if (millis() - _hbLastMillis > 5000)
   {
     _hbLastMillis = millis();
-    digitalWrite(HEARTBEAT_LED, !digitalRead(HEARTBEAT_LED));
+    // digitalWrite(HEARTBEAT_LED, !digitalRead(HEARTBEAT_LED));
     GetDigitalInputRegisters();
     GetAnalogInputRegisters();
     if (rOP == 0)
@@ -56,5 +56,5 @@ void loop()
   leds[0] = CRGB(150, 0, 255);
   FastLED.show();
   SendDigitalOutputToRegisters();
-  SendAnalogOutputToRegisters(rOP);
+  //SendAnalogOutputToRegisters(rOP);
 }

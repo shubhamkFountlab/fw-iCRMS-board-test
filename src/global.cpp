@@ -15,7 +15,7 @@ Adafruit_MCP4728 dac1; // MCP4728 4-Channel 12-bit I2C DAC
 char ipAddr[20], subnet[20], gateway[20];
 IPAddress local_IP, gateway_IP, subnet_Mask;
 
-static bool eth_connected = false;      // Global variable to pull status of eth.
+static bool eth_connected = false; // Global variable to pull status of eth.
 
 void InitRtc()
 {
@@ -199,20 +199,20 @@ void AdcInit()
 
 void GetAnalogInputRegisters()
 {
-    Serial.printf("ADC1: %d\n", adcCH1.readADC_SingleEnded(1));
-    Serial.printf("ADC2: %d\n", adcCH1.readADC_SingleEnded(0));
-    Serial.printf("ADC3: %d\n", adcCH1.readADC_SingleEnded(3));
-    Serial.printf("ADC4: %d\n", adcCH1.readADC_SingleEnded(2));
-    Serial.printf("ADC5: %d\n", adcCH2.readADC_SingleEnded(1));
-    Serial.printf("ADC6: %d\n", adcCH2.readADC_SingleEnded(0));
-    Serial.printf("ADC7: %d\n", adcCH2.readADC_SingleEnded(3));
-    Serial.printf("ADC8: %d\n", adcCH2.readADC_SingleEnded(2));
+    Serial.printf("ADC1: %d\n", adcCH1.readADC_SingleEnded(2));
+    Serial.printf("ADC2: %d\n", adcCH1.readADC_SingleEnded(1));
+    Serial.printf("ADC3: %d\n", adcCH1.readADC_SingleEnded(0));
+    Serial.printf("ADC4: %d\n", adcCH1.readADC_SingleEnded(3));
+    Serial.printf("ADC5: %d\n", adcCH2.readADC_SingleEnded(2));
+    Serial.printf("ADC6: %d\n", adcCH2.readADC_SingleEnded(1));
+    Serial.printf("ADC7: %d\n", adcCH2.readADC_SingleEnded(0));
+    Serial.printf("ADC8: %d\n", adcCH2.readADC_SingleEnded(3));
 }
 
 void DacInit()
 {
-    Wire.begin(SDA1_PIN, SCL1_PIN);
-    if (!dac1.begin(0x60))
+    // Wire.begin(SDA1_PIN, SCL1_PIN);
+    if (!dac1.begin(0x60), &Wire)
     {
         Serial.println("Failed to find MCP4728 DAC1 chip");
     }

@@ -277,10 +277,10 @@ bool MCP7940_Class::begin(const int sdaPin, const int sclPin, const uint32_t i2c
       @param[in] i2cSpeed defaults to I2C_STANDARD_MODE, otherwise use speed in Herz
       @return    true if successfully started communication, otherwise false
   */
-  Wire1.begin(sdaPin, sclPin);              // Start I2C as master device
-  Wire1.setClock(i2cSpeed);                 // Set the I2C bus speed
-  Wire1.beginTransmission(MCP7940_ADDRESS); // Address the MCP7940
-  if (Wire1.endTransmission() == 0)         // If there a device present
+  Wire.begin(sdaPin, sclPin);              // Start I2C as master device
+  Wire.setClock(i2cSpeed);                 // Set the I2C bus speed
+  Wire.beginTransmission(MCP7940_ADDRESS); // Address the MCP7940
+  if (Wire.endTransmission() == 0)         // If there a device present
   {
     clearRegisterBit(MCP7940_RTCHOUR, MCP7940_12_24); // Use 24 hour clock
     setRegisterBit(MCP7940_CONTROL, MCP7940_ALMPOL);  // assert alarm low, default high

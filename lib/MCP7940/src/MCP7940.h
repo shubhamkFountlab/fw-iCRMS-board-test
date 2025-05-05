@@ -344,15 +344,15 @@ public:
      @return             Pointer to return data structure
     */
     uint8_t i{0};                                     // return number of bytes read
-    Wire1.beginTransmission(MCP7940_EUI_ADDRESS);      // Address the special I2C address
-    Wire1.write((addr % 8) + MCP7940_EUI_RAM_ADDRESS); // Send register address to read from
-    if (Wire1.endTransmission() == 0)
+    Wire.beginTransmission(MCP7940_EUI_ADDRESS);      // Address the special I2C address
+    Wire.write((addr % 8) + MCP7940_EUI_RAM_ADDRESS); // Send register address to read from
+    if (Wire.endTransmission() == 0)
     {                                                   // Close transmission and check error code
-      Wire1.requestFrom(MCP7940_EUI_ADDRESS, sizeof(T)); // Request a block of data, max 61 bits
+      Wire.requestFrom(MCP7940_EUI_ADDRESS, sizeof(T)); // Request a block of data, max 61 bits
       uint8_t *bytePtr = (uint8_t *)&value;             // Declare pointer to start of structure
       for (i = 0; i < sizeof(T); i++)
       {                           // Loop for each byte to be read
-        *bytePtr++ = Wire1.read(); // Read a byte
+        *bytePtr++ = Wire.read(); // Read a byte
       }                           // of for-next each byte
     }                             // if-then success
     return i;                     // return number of bytes read
@@ -370,18 +370,18 @@ public:
      @return             Pointer to  data structure to write
     */
     uint8_t i{0};                                     // return number of bytes read
-    Wire1.beginTransmission(MCP7940_EUI_ADDRESS);      // Address the special I2C address
-    Wire1.write(MCP7940_EEUNLOCK);                     // Send special register address to write to
-    Wire1.write(0x55);                                 // Special write value to start unlock
-    i = Wire1.endTransmission();                       // close transmission of first byte
-    Wire1.beginTransmission(MCP7940_EUI_ADDRESS);      // Address the special I2C address
-    Wire1.write(MCP7940_EEUNLOCK);                     // Send special register address to write to
-    Wire1.write(0x55);                                 // Special write value to complete unlock
-    i = Wire1.endTransmission();                       // close transmission of second byte
-    Wire1.beginTransmission(MCP7940_EUI_ADDRESS);      // Address the special I2C address
-    Wire1.write((addr % 8) + MCP7940_EUI_RAM_ADDRESS); // Send register address to read from
-    Wire1.write((uint8_t *)&value, sizeof(T));         // write the data
-    i = Wire1.endTransmission();                       // close transmission of actual write
+    Wire.beginTransmission(MCP7940_EUI_ADDRESS);      // Address the special I2C address
+    Wire.write(MCP7940_EEUNLOCK);                     // Send special register address to write to
+    Wire.write(0x55);                                 // Special write value to start unlock
+    i = Wire.endTransmission();                       // close transmission of first byte
+    Wire.beginTransmission(MCP7940_EUI_ADDRESS);      // Address the special I2C address
+    Wire.write(MCP7940_EEUNLOCK);                     // Send special register address to write to
+    Wire.write(0x55);                                 // Special write value to complete unlock
+    i = Wire.endTransmission();                       // close transmission of second byte
+    Wire.beginTransmission(MCP7940_EUI_ADDRESS);      // Address the special I2C address
+    Wire.write((addr % 8) + MCP7940_EUI_RAM_ADDRESS); // Send register address to read from
+    Wire.write((uint8_t *)&value, sizeof(T));         // write the data
+    i = Wire.endTransmission();                       // close transmission of actual write
     if (i == 0)
       i = sizeof(T); // return number of bytes on success
     return i;        // return number of bytes read
@@ -410,15 +410,15 @@ private:
     @return    number of bytes read
    */
     uint8_t i{0};                            // return number of bytes read
-    Wire1.beginTransmission(MCP7940_ADDRESS); // Address the I2C device
-    Wire1.write(address);                     // Send register address to read from
-    if (Wire1.endTransmission() == 0)
+    Wire.beginTransmission(MCP7940_ADDRESS); // Address the I2C device
+    Wire.write(address);                     // Send register address to read from
+    if (Wire.endTransmission() == 0)
     {                                               // Close transmission and check error code
-      Wire1.requestFrom(MCP7940_ADDRESS, sizeof(T)); // Request a block of data
+      Wire.requestFrom(MCP7940_ADDRESS, sizeof(T)); // Request a block of data
       uint8_t *bytePtr = (uint8_t *)&value;         // Declare pointer to start of structure
       for (i = 0; i < sizeof(T); i++)
       {                           // Loop for each byte to be read
-        *bytePtr++ = Wire1.read(); // Read a byte
+        *bytePtr++ = Wire.read(); // Read a byte
       }                           // of for-next each byte
     }                             // if-then success
     return i;                     // return number of bytes read
@@ -435,10 +435,10 @@ private:
       @param[in] value   Data Type "T" to write
       @return    number of bytes written
      */
-    Wire1.beginTransmission(MCP7940_ADDRESS);  // Address the I2C device
-    Wire1.write(address);                      // Send register address to read from
-    Wire1.write((uint8_t *)&value, sizeof(T)); // write the data
-    uint8_t i = Wire1.endTransmission();       // close transmission and save status
+    Wire.beginTransmission(MCP7940_ADDRESS);  // Address the I2C device
+    Wire.write(address);                      // Send register address to read from
+    Wire.write((uint8_t *)&value, sizeof(T)); // write the data
+    uint8_t i = Wire.endTransmission();       // close transmission and save status
     if (i == 0)
       i = sizeof(T);                                               // return number of bytes on success
     return i;                                                      // return the number of bytes written
