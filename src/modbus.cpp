@@ -20,6 +20,7 @@ void modbusInit()
     // Packet Length error  solve using below function
     MBserver2.skipLeading0x00();
     MBserver2.registerWorker(slaveID2, READ_HOLD_REGISTER, &FC03HoldingsRegisters1);
+    Serial.println("Modbus Server Initialized");    
 }
 // FC03: worker do serve Modbus function code 0x03 (READ_HOLD_REGISTER)
 ModbusMessage FC03HoldingsRegisters(ModbusMessage request)

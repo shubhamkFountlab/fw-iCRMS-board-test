@@ -171,8 +171,116 @@ void GetDigitalInputRegisters()
     Serial.printf("IP16: %d\n", !ioPCAL6524.remotedigitalRead(P1_3));
 }
 
-void SendDigitalOutputToRegisters()
+void SendDigitalOutputToRegisters(uint8_t i)
 {
+    // if (i == 1)
+    // {
+    //     ioPCAL6524.remotedigitalWrite(P1_4, HIGH); // DO 1
+    // }
+    // else 
+    // {
+    //     ioPCAL6524.remotedigitalWrite(P1_4, LOW); // DO 1
+    // }
+
+    // if(i == 2)
+    // {
+    //     ioPCAL6524.remotedigitalWrite(P1_5, HIGH); // DO 2
+    // }
+    // else 
+    // {
+    //     ioPCAL6524.remotedigitalWrite(P1_5, LOW); // DO 2
+    // }
+
+    // if(i == 3)
+    // {
+    //     ioPCAL6524.remotedigitalWrite(P1_6, HIGH); // DO 3
+    // }
+    // else 
+    // {
+    //     ioPCAL6524.remotedigitalWrite(P1_6, LOW); // DO 3
+    // }
+
+    // if(i == 4)
+    // {
+    //     ioPCAL6524.remotedigitalWrite(P1_7, HIGH); // DO 4
+    // }
+    // else 
+    // {
+    //     ioPCAL6524.remotedigitalWrite(P1_7, LOW); // DO 4
+    // }
+
+    // if(i == 5)
+    // {
+    //     ioPCAL6524.remotedigitalWrite(P2_0, HIGH); // DO 5
+    // }
+    // else 
+    // {
+    //     ioPCAL6524.remotedigitalWrite(P2_0, LOW); // DO 5
+    // }
+
+    // if(i == 6)
+    // {
+    //     ioPCAL6524.remotedigitalWrite(P2_1, HIGH); // DO 6
+    // }
+    // else 
+    // {
+    //     ioPCAL6524.remotedigitalWrite(P2_1, LOW); // DO 6
+    // }
+
+    // if(i == 7)
+    // {
+    //     ioPCAL6524.remotedigitalWrite(P2_2, HIGH); // DO 7
+    // }
+    // else 
+    // {
+    //     ioPCAL6524.remotedigitalWrite(P2_2, LOW); // DO 7
+    // }
+
+    // if(i == 8)
+    // {
+    //     ioPCAL6524.remotedigitalWrite(P2_3, HIGH); // DO 8
+    // }
+    // else 
+    // {
+    //     ioPCAL6524.remotedigitalWrite(P2_3, LOW); // DO 8
+    // }
+
+    // if(i == 9)
+    // {
+    //     ioPCAL6524.remotedigitalWrite(P2_4, HIGH); // DO 9
+    // }
+    // else 
+    // {
+    //     ioPCAL6524.remotedigitalWrite(P2_4, LOW); // DO 9
+    // }
+
+    // if(i == 10)
+    // {
+    //     ioPCAL6524.remotedigitalWrite(P2_5, HIGH); // DO 10
+    // }
+    // else 
+    // {
+    //     ioPCAL6524.remotedigitalWrite(P2_5, LOW); // DO 10
+    // }
+
+    // if(i == 11)
+    // {
+    //     ioPCAL6524.remotedigitalWrite(P2_6, HIGH); // DO 11
+    // }
+    // else 
+    // {
+    //     ioPCAL6524.remotedigitalWrite(P2_6, LOW); // DO 11
+    // }
+
+    // if(i == 12)
+    // {
+    //     ioPCAL6524.remotedigitalWrite(P2_7, HIGH); // DO 12
+    // }
+    // else 
+    // {
+    //     ioPCAL6524.remotedigitalWrite(P2_7, LOW); // DO 12
+    // }
+
     ioPCAL6524.remotedigitalWrite(P1_4, coil_reg.digitalOp1);  // DO 1
     ioPCAL6524.remotedigitalWrite(P1_5, coil_reg.digitalOp2);  // DO 2
     ioPCAL6524.remotedigitalWrite(P1_6, coil_reg.digitalOp3);  // DO 3
@@ -212,7 +320,7 @@ void GetAnalogInputRegisters()
 void DacInit()
 {
     // Wire.begin(SDA1_PIN, SCL1_PIN);
-    if (!dac1.begin(0x60), &Wire)
+    if (!dac1.begin((0x60), &Wire))
     {
         Serial.println("Failed to find MCP4728 DAC1 chip");
     }
@@ -227,7 +335,7 @@ void SendAnalogOutputToRegisters(uint16_t val)
         dac1.setChannelValue(MCP4728_CHANNEL_C, 3072, MCP4728_VREF_INTERNAL, MCP4728_GAIN_1X);
         dac1.setChannelValue(MCP4728_CHANNEL_D, 4094, MCP4728_VREF_INTERNAL, MCP4728_GAIN_1X);
     }
-    else if (val == 2)
+    else if (val == 0)
     {
         dac1.setChannelValue(MCP4728_CHANNEL_A, 4094, MCP4728_VREF_INTERNAL, MCP4728_GAIN_1X);
         dac1.setChannelValue(MCP4728_CHANNEL_B, 3072, MCP4728_VREF_INTERNAL, MCP4728_GAIN_1X);
@@ -236,38 +344,37 @@ void SendAnalogOutputToRegisters(uint16_t val)
     }
 }
 
-
 #define EEPROM_I2C_ADDRESS 0x50 // Base address for AT24LC16 (A0, A1, A2 = 0)
 
 void eepromPageWrite(uint16_t addr, byte *data, uint8_t length)
 {
-  if (length > 16)
-    length = 16; // AT24LC16 page size is 16 bytes
+    if (length > 16)
+        length = 16; // AT24LC16 page size is 16 bytes
 
-  Wire.beginTransmission(EEPROM_I2C_ADDRESS | ((addr >> 8) & 0x07));
-  Wire.write((byte)(addr & 0xFF)); // lower 8 bits
-  for (uint8_t i = 0; i < length; i++)
-  {
-    Wire.write(data[i]);
-  }
-  Wire.endTransmission();
+    Wire.beginTransmission(EEPROM_I2C_ADDRESS | ((addr >> 8) & 0x07));
+    Wire.write((byte)(addr & 0xFF)); // lower 8 bits
+    for (uint8_t i = 0; i < length; i++)
+    {
+        Wire.write(data[i]);
+    }
+    Wire.endTransmission();
 
-  delay(10); // wait EEPROM internal write cycle (typical 5ms-10ms)
-  Serial.println("EEPROM Write Done!");
+    delay(10); // wait EEPROM internal write cycle (typical 5ms-10ms)
+    Serial.println("EEPROM Write Done!");
 }
 void eepromPageRead(uint16_t addr, byte *buffer, uint8_t length)
 {
-  if (length > 16)
-    length = 16; // Read maximum 16 bytes at once
+    if (length > 16)
+        length = 16; // Read maximum 16 bytes at once
 
-  Wire.beginTransmission(EEPROM_I2C_ADDRESS | ((addr >> 8) & 0x07));
-  Wire.write((byte)(addr & 0xFF)); // lower 8 bits
-  Wire.endTransmission();
+    Wire.beginTransmission(EEPROM_I2C_ADDRESS | ((addr >> 8) & 0x07));
+    Wire.write((byte)(addr & 0xFF)); // lower 8 bits
+    Wire.endTransmission();
 
-  Wire.requestFrom((EEPROM_I2C_ADDRESS | ((addr >> 8) & 0x07)), length);
-  uint8_t i = 0;
-  while (Wire.available() && i < length)
-  {
-    buffer[i++] = Wire.read();
-  }
+    Wire.requestFrom((EEPROM_I2C_ADDRESS | ((addr >> 8) & 0x07)), length);
+    uint8_t i = 0;
+    while (Wire.available() && i < length)
+    {
+        buffer[i++] = Wire.read();
+    }
 }

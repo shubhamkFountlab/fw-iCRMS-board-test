@@ -58,7 +58,7 @@ void getDateTime();
 void EthernetBegin();
 void PCAL6532DigitalIOPinModesInit();
 void ESP32DigitalIPPinModesInit();
-void SendDigitalOutputToRegisters();
+void SendDigitalOutputToRegisters(uint8_t i);
 void GetDigitalInputRegisters();
 void GetAnalogInputRegisters();
 void AdcInit();
