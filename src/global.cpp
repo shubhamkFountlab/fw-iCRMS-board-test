@@ -177,7 +177,7 @@ void SendDigitalOutputToRegisters(uint8_t i)
     // {
     //     ioPCAL6524.remotedigitalWrite(P1_4, HIGH); // DO 1
     // }
-    // else 
+    // else
     // {
     //     ioPCAL6524.remotedigitalWrite(P1_4, LOW); // DO 1
     // }
@@ -186,7 +186,7 @@ void SendDigitalOutputToRegisters(uint8_t i)
     // {
     //     ioPCAL6524.remotedigitalWrite(P1_5, HIGH); // DO 2
     // }
-    // else 
+    // else
     // {
     //     ioPCAL6524.remotedigitalWrite(P1_5, LOW); // DO 2
     // }
@@ -195,7 +195,7 @@ void SendDigitalOutputToRegisters(uint8_t i)
     // {
     //     ioPCAL6524.remotedigitalWrite(P1_6, HIGH); // DO 3
     // }
-    // else 
+    // else
     // {
     //     ioPCAL6524.remotedigitalWrite(P1_6, LOW); // DO 3
     // }
@@ -204,7 +204,7 @@ void SendDigitalOutputToRegisters(uint8_t i)
     // {
     //     ioPCAL6524.remotedigitalWrite(P1_7, HIGH); // DO 4
     // }
-    // else 
+    // else
     // {
     //     ioPCAL6524.remotedigitalWrite(P1_7, LOW); // DO 4
     // }
@@ -213,7 +213,7 @@ void SendDigitalOutputToRegisters(uint8_t i)
     // {
     //     ioPCAL6524.remotedigitalWrite(P2_0, HIGH); // DO 5
     // }
-    // else 
+    // else
     // {
     //     ioPCAL6524.remotedigitalWrite(P2_0, LOW); // DO 5
     // }
@@ -222,7 +222,7 @@ void SendDigitalOutputToRegisters(uint8_t i)
     // {
     //     ioPCAL6524.remotedigitalWrite(P2_1, HIGH); // DO 6
     // }
-    // else 
+    // else
     // {
     //     ioPCAL6524.remotedigitalWrite(P2_1, LOW); // DO 6
     // }
@@ -231,7 +231,7 @@ void SendDigitalOutputToRegisters(uint8_t i)
     // {
     //     ioPCAL6524.remotedigitalWrite(P2_2, HIGH); // DO 7
     // }
-    // else 
+    // else
     // {
     //     ioPCAL6524.remotedigitalWrite(P2_2, LOW); // DO 7
     // }
@@ -240,7 +240,7 @@ void SendDigitalOutputToRegisters(uint8_t i)
     // {
     //     ioPCAL6524.remotedigitalWrite(P2_3, HIGH); // DO 8
     // }
-    // else 
+    // else
     // {
     //     ioPCAL6524.remotedigitalWrite(P2_3, LOW); // DO 8
     // }
@@ -249,7 +249,7 @@ void SendDigitalOutputToRegisters(uint8_t i)
     // {
     //     ioPCAL6524.remotedigitalWrite(P2_4, HIGH); // DO 9
     // }
-    // else 
+    // else
     // {
     //     ioPCAL6524.remotedigitalWrite(P2_4, LOW); // DO 9
     // }
@@ -258,7 +258,7 @@ void SendDigitalOutputToRegisters(uint8_t i)
     // {
     //     ioPCAL6524.remotedigitalWrite(P2_5, HIGH); // DO 10
     // }
-    // else 
+    // else
     // {
     //     ioPCAL6524.remotedigitalWrite(P2_5, LOW); // DO 10
     // }
@@ -267,7 +267,7 @@ void SendDigitalOutputToRegisters(uint8_t i)
     // {
     //     ioPCAL6524.remotedigitalWrite(P2_6, HIGH); // DO 11
     // }
-    // else 
+    // else
     // {
     //     ioPCAL6524.remotedigitalWrite(P2_6, LOW); // DO 11
     // }
@@ -276,7 +276,7 @@ void SendDigitalOutputToRegisters(uint8_t i)
     // {
     //     ioPCAL6524.remotedigitalWrite(P2_7, HIGH); // DO 12
     // }
-    // else 
+    // else
     // {
     //     ioPCAL6524.remotedigitalWrite(P2_7, LOW); // DO 12
     // }
@@ -345,36 +345,98 @@ void SendAnalogOutputToRegisters(uint16_t val)
 }
 
 #define EEPROM_I2C_ADDRESS 0x50 // Base address for AT24LC16 (A0, A1, A2 = 0)
+#define min(a, b) ((a) < (b) ? (a) : (b))
 
-void eepromPageWrite(uint16_t addr, byte *data, uint8_t length)
+// ------------ CRC16 Function ------------
+uint16_t calculateCRC16(const uint8_t *data, uint16_t length)
+{
+    uint16_t crc = 0xFFFF;
+    for (uint16_t i = 0; i < length; i++)
+    {
+        crc ^= (uint16_t)data[i] << 8;
+        for (uint8_t j = 0; j < 8; j++)
+        {
+            if (crc & 0x8000)
+                crc = (crc << 1) ^ 0x1021;
+            else
+                crc <<= 1;
+        }
+    }
+    Serial.print("Write CRC: 0x");
+    Serial.println(crc, HEX);
+    return crc;
+}
+// ------------ EEPROM Page Write (Max 16 bytes) ------------
+void eepromPageWrite(uint16_t addr, uint8_t *data, uint8_t length)
 {
     if (length > 16)
-        length = 16; // AT24LC16 page size is 16 bytes
+        length = 16;
 
     Wire.beginTransmission(EEPROM_I2C_ADDRESS | ((addr >> 8) & 0x07));
-    Wire.write((byte)(addr & 0xFF)); // lower 8 bits
+    Wire.write((uint8_t)(addr & 0xFF));
     for (uint8_t i = 0; i < length; i++)
     {
         Wire.write(data[i]);
     }
     Wire.endTransmission();
-
-    delay(10); // wait EEPROM internal write cycle (typical 5ms-10ms)
-    Serial.println("EEPROM Write Done!");
+    delay(10); // EEPROM write delay
 }
-void eepromPageRead(uint16_t addr, byte *buffer, uint8_t length)
+
+// ------------ EEPROM Page Read (Max 16 bytes) ------------
+void eepromPageRead(uint16_t addr, uint8_t *buffer, uint8_t length)
 {
     if (length > 16)
-        length = 16; // Read maximum 16 bytes at once
+        length = 16;
 
     Wire.beginTransmission(EEPROM_I2C_ADDRESS | ((addr >> 8) & 0x07));
-    Wire.write((byte)(addr & 0xFF)); // lower 8 bits
+    Wire.write((uint8_t)(addr & 0xFF));
     Wire.endTransmission();
 
-    Wire.requestFrom((EEPROM_I2C_ADDRESS | ((addr >> 8) & 0x07)), length);
+    Wire.requestFrom((uint8_t)(EEPROM_I2C_ADDRESS | ((addr >> 8) & 0x07)), length);
     uint8_t i = 0;
     while (Wire.available() && i < length)
     {
         buffer[i++] = Wire.read();
     }
+}
+
+// ------------ Write Structure with CRC to EEPROM ------------
+void writeStructWithCRC(uint16_t startAddr, tCOMP_RUN_HOURS_MILLIS *data)
+{
+    data->crc16 = calculateCRC16((uint8_t *)data, sizeof(tCOMP_RUN_HOURS_MILLIS) - 2);
+
+    const uint8_t *ptr = (const uint8_t *)data;
+    uint8_t remaining = sizeof(tCOMP_RUN_HOURS_MILLIS);
+    uint16_t addr = startAddr;
+
+    while (remaining > 0)
+    {
+        uint8_t chunkSize = min(16 - (addr % 16), remaining);
+        eepromPageWrite(addr, (uint8_t *)ptr, chunkSize);
+        addr += chunkSize;
+        ptr += chunkSize;
+        remaining -= chunkSize;
+    }
+}
+
+// ------------ Read Structure with CRC Check ------------
+bool readStructWithCRC(uint16_t startAddr, tCOMP_RUN_HOURS_MILLIS *data)
+{
+    uint8_t *ptr = (uint8_t *)data;
+    uint8_t remaining = sizeof(tCOMP_RUN_HOURS_MILLIS);
+    uint16_t addr = startAddr;
+
+    while (remaining > 0)
+    {
+        uint8_t chunkSize = min(16 - (addr % 16), remaining);
+        eepromPageRead(addr, ptr, chunkSize);
+        addr += chunkSize;
+        ptr += chunkSize;
+        remaining -= chunkSize;
+    }
+
+    uint16_t calculatedCRC = calculateCRC16((uint8_t *)data, sizeof(tCOMP_RUN_HOURS_MILLIS) - 2);
+    Serial.print("Calculated CRC: 0x");
+    Serial.println(calculatedCRC, HEX);
+    return (data->crc16 == calculatedCRC);
 }

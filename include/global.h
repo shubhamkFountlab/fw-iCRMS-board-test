@@ -21,6 +21,18 @@
 
 #define HEARTBEAT_LED 0 /// GPIO0
 
+#pragma pack(push, 1)
+typedef struct _COMP_RUN_HOURS_MILLIS
+{
+    uint32_t compRunHoursStartMillis;
+    uint32_t ccsv1RunHoursStartMillis;
+    uint32_t ccsv2RunHoursStartMillis;
+    uint32_t ccsv3RunHoursStartMillis;
+    uint32_t ccsv4RunHoursStartMillis;
+    uint16_t crc16; // CRC field
+} tCOMP_RUN_HOURS_MILLIS;
+#pragma pack(pop)
+
 // Ethernet Pins
 #define ETH_CLK_MODE ETH_CLOCK_GPIO0_IN // ETH_CLOCK_GPIO17_OUT
 #define ETH_POWER_PIN -1                // The enable signal for the external crystal oscillator (-1 to disable for internal APLL source)
@@ -29,7 +41,6 @@
 #define ETH_MDC_PIN 23                  // The I²C clock signal for the Ethernet PHY
 #define ETH_MDIO_PIN 18                 // The I²C IO signal for the Ethernet PHY
 #define NRST 21                         // The nRST (enable) for the Ethernet PHY
-
 
 typedef union _COIL_REG1_
 {
@@ -64,5 +75,10 @@ void GetAnalogInputRegisters();
 void AdcInit();
 void SendAnalogOutputToRegisters(uint16_t val);
 void DacInit();
-void eepromPageWrite(uint16_t addr, byte *data, uint8_t length);
-void eepromPageRead(uint16_t addr, byte *buffer, uint8_t length);
+
+uint16_t calculateCRC16(const uint8_t *data, uint16_t length);
+void eepromPageWrite(uint16_t addr, uint8_t *data, uint8_t length);
+void eepromPageRead(uint16_t addr, uint8_t *buffer, uint8_t length);
+bool readStructWithCRC(uint16_t startAddr, tCOMP_RUN_HOURS_MILLIS *data);
+void writeStructWithCRC(uint16_t startAddr, tCOMP_RUN_HOURS_MILLIS *data);
+

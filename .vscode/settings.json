@@ -1,0 +1,12 @@
+{
+    "files.associations": {
+        "*.txt": "bibtex",
+        "bitset": "cpp",
+        "chrono": "cpp",
+        "string_view": "cpp",
+        "algorithm": "cpp",
+        "random": "cpp",
+        "istream": "cpp",
+        "limits": "cpp"
+    }
+}

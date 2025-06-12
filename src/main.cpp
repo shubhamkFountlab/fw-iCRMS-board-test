@@ -21,34 +21,38 @@ void setup()
   // pinMode(HEARTBEAT_LED, OUTPUT);
   // digitalWrite(HEARTBEAT_LED, LOW); // Set the heartbeat LED to LOW initially
   modbusInit(); // Initialize Modbus
-  // FastLED.addLeds<WS2812B, RGB_LED_PIN, GRB>(leds, NUM_LEDS);
-  byte dataToWrite[16] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15}; // 16 bytes
-  byte s[8] = {'S', 'H', 'U', 'B', 'H', 'A', 'M'};
-  uint16_t startAddress = 0x0001;
+                // FastLED.addLeds<WS2812B, RGB_LED_PIN, GRB>(leds, NUM_LEDS);
 
-  eepromPageWrite(startAddress, dataToWrite, 16);
-  delay(20);                                // wait to complete writing
-  eepromPageWrite(startAddress + 16, s, 8); // Write 8 bytes to the next page
+  // Test struct
+  tCOMP_RUN_HOURS_MILLIS runData = {
+      .compRunHoursStartMillis = 111111,
+      .ccsv1RunHoursStartMillis = 222222,
+      .ccsv2RunHoursStartMillis = 333333,
+      .ccsv3RunHoursStartMillis = 444444,
+      .ccsv4RunHoursStartMillis = 555555,
+      .crc16 = 0};
 
-  delay(20); // wait to complete writing
+  writeStructWithCRC(0x0000, &runData);
+  delay(20); // Wait EEPROM write cycle to complete
+  Serial.println("Data written to EEPROM");
 
-  byte dataRead[16];
-  byte sRead[8];
-  eepromPageRead(startAddress, dataRead, 16);
-  eepromPageRead(startAddress + 16, sRead, 8); // Read 8 bytes from the next page
-
-  Serial.println("Data read from EEPROM:");
-  for (int i = 0; i < 16; i++)
+  tCOMP_RUN_HOURS_MILLIS readBack;
+  if (readStructWithCRC(0x0000, &readBack))
   {
-    Serial.print(dataRead[i], HEX);
-    Serial.print(" ");
+    Serial.println("EEPROM data is valid:");
+    Serial.println(readBack.compRunHoursStartMillis);
+    Serial.println(readBack.ccsv1RunHoursStartMillis);
+    Serial.println(readBack.ccsv2RunHoursStartMillis);
+    Serial.println(readBack.ccsv3RunHoursStartMillis);
+    Serial.println(readBack.ccsv4RunHoursStartMillis);
+    Serial.print("CRC: 0x");
+    Serial.println(readBack.crc16, HEX);
   }
-  Serial.println();
-  Serial.print("String read from EEPROM: ");
-  for (int i = 0; i < 8; i++)
+  else
   {
-    Serial.print((char)sRead[i]);
+    Serial.println("EEPROM data is corrupted!");
   }
+
   Serial.println();
 }
 
@@ -72,6 +76,8 @@ void loop()
       coil_reg.coil = 0xFFFF;
     }
     rOP = !rOP;
+    SendDigitalOutputToRegisters(rl);
+    SendAnalogOutputToRegisters(rOP);
     // debugPrintln("Heartbeat");
   }
   // RGB LED test
@@ -98,7 +104,4 @@ void loop()
   //     rl = 0;
   //   }
   // }
-
-  SendDigitalOutputToRegisters(rl);
-  SendAnalogOutputToRegisters(rOP);
 }
