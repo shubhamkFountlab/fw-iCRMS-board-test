@@ -10,6 +10,16 @@ void setup()
 
   Serial.begin(115200);
   Wire.begin(SDA1_PIN, SCL1_PIN); // I2C 1
+                                  // ...existing code...
+  uint64_t mac = ESP.getEfuseMac();
+  Serial.print("ESP32 MAC Address: ");
+  Serial.printf("%02X:%02X:%02X:%02X:%02X:%02X\n",
+                (uint8_t)(mac >> 40),
+                (uint8_t)(mac >> 32),
+                (uint8_t)(mac >> 24),
+                (uint8_t)(mac >> 16),
+                (uint8_t)(mac >> 8),
+                (uint8_t)(mac));
   InitRtc();
   EthernetBegin();
   PCAL6532DigitalIOPinModesInit();
@@ -67,6 +77,7 @@ void loop()
     // digitalWrite(HEARTBEAT_LED, !digitalRead(HEARTBEAT_LED));
     GetDigitalInputRegisters();
     GetAnalogInputRegisters();
+    getDateTime();
     if (rOP == 0)
     {
       coil_reg.coil = 0x0000;
