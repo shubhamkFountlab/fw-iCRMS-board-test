@@ -1,7 +1,6 @@
 #include <Arduino.h>
 #include <FastLED.h>
 #include <MCP7940.h>
-#include "SPI.h"
 
 #define RGB_LED_PIN 13
 #define NUM_LEDS 1

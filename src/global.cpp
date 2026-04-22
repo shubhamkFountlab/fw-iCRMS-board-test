@@ -33,8 +33,34 @@ void InitRtc()
         delay(1000);
     }
     Serial.println("RTC Initialized!");
-    MCP7940.adjust(DateTime(F(__DATE__), F(__TIME__)));
+
+    // Enable battery-backup mode (VBATEN) so time is retained on main power loss.
+    MCP7940.setBattery(true);
+
+    // Don't overwrite time on every reboot.
+    // If the oscillator isn't running (fresh board / dead VBAT / first boot), initialize it once.
+    if (!MCP7940.deviceStatus())
+    {
+        Serial.println("RTC not running; setting to firmware compile time");
+        MCP7940.adjust();
+    }
+    else
+    {
+        Serial.println("RTC running; keeping stored time");
+    }
+
+    if (MCP7940.getPowerFail())
+    {
+        Serial.println("RTC power-fail flag is set");
+        MCP7940.clearPowerFail();
+    }
+
+    DateTime now = MCP7940.now();
+    Serial.print("RTC now: ");
+    Serial.printf("%04d-%02d-%02d %02d:%02d:%02d\n", now.year(), now.month(), now.day(), now.hour(),
+                  now.minute(), now.second());
 }
+
 void getDateTime()
 {
     DateTime now = MCP7940.now();
