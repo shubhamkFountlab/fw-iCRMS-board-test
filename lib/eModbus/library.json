@@ -25,12 +25,6 @@
   },
   "dependencies": [
     {
-      "owner": "me-no-dev",
-      "name": "AsyncTCP",
-      "version": "*",
-      "platforms": ["espressif32"]
-    },
-    {
       "name": "custom-Ethernet",
       "version": "https://github.com/maxgerhardt/Ethernet.git",
       "platforms": ["espressif32"]
